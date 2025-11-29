@@ -27,7 +27,7 @@ impl<T: Sample> MultiWaveformRenderer<T> {
     /// * `bin_sizes` - The sizes of the bins which the min / max values will be binned
     ///                into.
     /// * `config` - See `WaveformConfig`.
-    pub fn new(samples: &SampleSequence<T>, bin_sizes: &[usize], config: WaveformConfig) -> Result<Self, Box<Error>> {
+    pub fn new(samples: &SampleSequence<T>, bin_sizes: &[usize], config: WaveformConfig) -> Result<Self, Box<dyn Error>> {
         let mut r = MultiWaveformRenderer {
             binned: HashMap::new(),
             sample_rate: samples.sample_rate,
@@ -43,7 +43,7 @@ impl<T: Sample> MultiWaveformRenderer<T> {
         // larger bin sizes.
         for bs in bss.iter() {
             r.binned
-                .insert(*bs, try!(BinnedWaveformRenderer::new(samples, *bs, config)));
+                .insert(*bs, (BinnedWaveformRenderer::new(samples, *bs, config))?);
         }
 
         Ok(r)
@@ -120,7 +120,7 @@ impl<T: Sample> MultiWaveformRenderer<T> {
     /// * `img`   - A mutable reference to the slice to write the result into.
     /// * `full_shape` - The `(width, height)` of the whole `img` in pixels.
     ///
-    pub fn render_write(&mut self, range: TimeRange, offsets: (usize, usize), shape: (usize, usize), img: &mut [u8], full_shape: (usize, usize)) -> Result<(), Box<Error>> {
+    pub fn render_write(&mut self, range: TimeRange, offsets: (usize, usize), shape: (usize, usize), img: &mut [u8], full_shape: (usize, usize)) -> Result<(), Box<dyn Error>> {
         let (begin, end) = range.to_sample_tuple(self.sample_rate);
 
         let samples_per_pixel = ((end - begin) as f64) / (shape.0 as f64);
@@ -139,7 +139,7 @@ impl<T: Sample> MultiWaveformRenderer<T> {
 #[cfg(test)]
 mod tests {
     use super::MultiWaveformRenderer;
-    use misc::*;
+    use crate::misc::*;
 
     #[test]
     fn multi() {
@@ -175,6 +175,6 @@ mod tests {
             },
             &vec![10usize], config
         ).unwrap();
-        let _test: &(Sync+Send) = &wfr;
+        let _test: &(dyn Sync+Send) = &wfr;
     }
 }

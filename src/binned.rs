@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::cmp;
-use error::InvalidSizeError;
-use misc::*;
+use crate::error::InvalidSizeError;
+use crate::misc::*;
 
 #[cfg(not(feature = "rlibc"))]
 use std::io::Write;
@@ -33,7 +33,7 @@ impl<T: Sample> BinnedWaveformRenderer<T> {
     /// * `bin_size` - The size of the bins which the min / max values will be binned
     ///                into.
     /// * `config` - See `WaveformConfig`.
-    pub fn new(samples: &SampleSequence<T>, bin_size: usize, config: WaveformConfig) -> Result<BinnedWaveformRenderer<T>, Box<Error>> {
+    pub fn new(samples: &SampleSequence<T>, bin_size: usize, config: WaveformConfig) -> Result<BinnedWaveformRenderer<T>, Box<dyn Error>> {
         let mut data: Vec<MinMaxPair<T>> = Vec::new();
         let nb_samples = samples.data.len();
 
@@ -122,7 +122,7 @@ impl<T: Sample> BinnedWaveformRenderer<T> {
     /// * `img`   - A mutable reference to the slice to write the result into.
     /// * `full_shape` - The `(width, height)` of the whole `img` in pixels.
     ///
-    pub fn render_write(&self, range: TimeRange, offsets: (usize, usize), shape: (usize, usize), img: &mut [u8], full_shape: (usize, usize)) -> Result<(), Box<Error>> {
+    pub fn render_write(&self, range: TimeRange, offsets: (usize, usize), shape: (usize, usize), img: &mut [u8], full_shape: (usize, usize)) -> Result<(), Box<dyn Error>> {
         let (w, h) = shape;
         if w == 0 || h == 0 {
             return Err(Box::new(InvalidSizeError{var_name: "shape".to_string()}));
@@ -363,8 +363,10 @@ impl<T: Sample> BinnedWaveformRenderer<T> {
 
 #[cfg(test)]
 mod tests {
+    use std::f64;
+
     use super::BinnedWaveformRenderer;
-    use ::misc::*;
+    use crate::misc::*;
 
     #[test]
     fn render_vec_and_write_eq() {
@@ -372,7 +374,7 @@ mod tests {
         let (width, height) = (1000, 100);
         let mut samples: Vec<f64> = Vec::new();
         for t in 0u32..44100u32 {
-            samples.push(((t as f64) * 0.01f64 * 2f64 * 3.1415f64).sin());
+            samples.push(((t as f64) * 0.01f64 * 2f64 * f64::consts::PI).sin());
         }
         let config = WaveformConfig::new(
             -1f64,
@@ -409,6 +411,6 @@ mod tests {
             },
             10, config
         ).unwrap();
-        let _test: &(Sync+Send) = &wfr;
+        let _test: &(dyn Sync+Send) = &wfr;
     }
 }
