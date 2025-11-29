@@ -11,7 +11,7 @@ license = "Apache-2.0/MIT"
 edition = "2024"
 
 [features]
-default = ["rlibc", "example-gui"]
+default = ["rlibc"]
 example-gui = ["gtk4", "gdk-pixbuf"]
 
 [dependencies]
