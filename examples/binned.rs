@@ -29,6 +29,7 @@ use gtk4::{Picture, Window, prelude::{
 use gdk_pixbuf::Pixbuf;
 
 fn main() {
+    #[cfg(feature = "example-gui")]
     let main_loop: gtk4::glib::MainLoop = gtk4::glib::MainLoop::new(None, false);
 
     #[cfg(feature = "example-gui")]
