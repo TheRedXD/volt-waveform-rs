@@ -13,6 +13,7 @@ extern crate gdk_pixbuf;
 
 use std::f64;
 
+#[cfg(feature = "example-gui")]
 use volt_waveform::{
     SampleSequence,
     WaveformConfig,
@@ -62,6 +63,7 @@ fn main() {
     }
 
     // The renderer's config.
+    #[cfg(feature = "example-gui")]
     let config = WaveformConfig::new(
         -1f64, // Minimum amplitude to show
         1f64, // Maximum amplitude to show
@@ -76,6 +78,7 @@ fn main() {
     // Put a reference to the samples here along with its sample rate.
     // We need to set a sample rate because it will be used
     // when you specify the time range in seconds.
+    #[cfg(feature = "example-gui")]
     let ss = SampleSequence {
         data: &samples[..],
         sample_rate: 44100f64,
@@ -85,12 +88,14 @@ fn main() {
     // The second argument is a `&Vec<usize>` containing the bin sizes.
     // `MultiWaveformRenderer` will generate a `BinnedWaveformRenderer` for
     // each bin size.
+    #[cfg(feature = "example-gui")]
     let mut wfg = MultiWaveformRenderer::new(&ss, &[10, 100, 1000], config).unwrap();
 
     // Render!
     // Each time `MultiWaveformRenderer` will choose the appropriate bin size.
     // The largest bin size that is not larger than the average number of samples
     // that a pixel contains.
+    #[cfg(feature = "example-gui")]
     let vec: Vec<u8> =
         wfg.render_vec(TimeRange::Seconds(0.0f64, 1.0f64), (800, 100))
         .unwrap();
